@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Bitmap stress testing</title>
+    </head>
+
+    <body>
+        <div id="alert" style="display: none;background-color: yellow;">
+            This is an alert box.
+        </div>
+        <div id="inputs_holder">
+            <label>Enter number of images to be loaded: </label>
+            <input id="img_num" type="text"/>
+            <button onclick="draw()">Click</button>
+        </div>
+        <div id="img_holder">
+        </div>
+    </body>
+
+    <style>
+        #alert{
+           padding: 20px;
+           background-color: yellow; 
+           color: black;
+           margin-bottom: 15px;
+        }
+     </style>
+
+    <script type="text/javascript">
+        let total_size = 0;
+        let total_images_resolved = 0;
+        let onload = false;
+        var imageBlob = null;
+        var imageBlobSize = null;
+        var alert_div = document.getElementById("alert");
+
+        var firstImagePromise = new Promise(function (resolve, reject) {
+            var elem = document.createElement("img");
+                elem.src = "./"+1+"_image.jpg";
+                elem.onload = function(){
+                    fetch(elem.src).then(resp => resp.blob())
+                    .then(blob => {
+                        imageBlob = blob;
+                        imageBlobSize = blob.size;
+                        // console.log("Loaded Image "+i);
+                        // console.log("img "+i+" size is "+blob.size);
+                        // total_size += imageBlobSize;
+                        // console.log("Total images size is "+total_size/(1000*1000) +" MB");
+                        // document.getElementById("img_holder").appendChild(elem);
+                        // total_images_resolved += 1;
+                        resolve(1);
+                    })
+                    .catch(err => {
+                        // console.log("err: "+err);
+                        reject(1);
+                    });
+                }
+                elem.onerror = (() => {
+                    // console.log("Error ! Image not available "+i);
+                    reject(1);
+                });
+        });
+
+        function load_image(i) {
+            return new Promise((resolve,reject) => {
+                firstImagePromise.then(function () {
+                    setTimeout(function () {
+                        var elem = document.createElement("img");
+                        var objectURL = URL.createObjectURL(imageBlob);
+                        total_size += imageBlobSize;
+                        total_images_resolved += 1;
+                        elem.src = objectURL;
+                        document.getElementById("img_holder").appendChild(elem);
+                        // URL.revokeObjectURL(objectURL);  
+                        resolve(total_images_resolved);
+                    }, 0)
+                });
+            });
+        }
+
+        function draw(){
+            if(onload === true)
+            {
+                alert_div.style.display = "block";
+                alert_div.innerHTML = "Loading....Please Wait!";
+                setTimeout(function(){ alert_div.style.display = "none"; }, 1000);
+                return;
+            }
+
+            //To show the images are loading
+            var png = document.createElement("img");
+            png.src = "../resources/loading.gif";
+            document.getElementById("inputs_holder").appendChild(png);
+
+            let img_num = document.getElementById("img_num").value;
+            if(img_num != null && img_num>0 && Number.isInteger(parseInt(img_num)))
+            {
+                onload = true;
+                let promises = [];
+                let i;
+                for(i=0;i<img_num;i++)
+                {
+                    promises.push(load_image(i));
+                }
+                
+                Promise.all(promises.map(p => p.catch(e => e))).then(function(results){
+                    alert_div.style.display = "block";
+                    alert_div.innerHTML = "Total images size is "+total_size/(1000*1000*1000) +" GB and total images resolved are "+total_images_resolved;
+                    document.getElementById("inputs_holder").removeChild(png);
+                    onload = false;
+                })
+                .catch(err => {
+                    console.log("error for all promises "+err);
+                })
+            }
+            else{
+                alert_div.style.display = "block";
+                alert_div.innerHTML = "Please give valid image number";
+                setTimeout(function(){ alert_div.style.display = "none"; }, 1000);
+                document.getElementById("inputs_holder").removeChild(png);
+            }
+        }
+
+    </script>
+</html>
