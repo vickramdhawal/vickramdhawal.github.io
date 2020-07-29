@@ -5,13 +5,25 @@
     </head>
 
     <body>
-        <div id="alert" style="display: none;background-color: yellow;">
+        <div id="alert" style="background-color: yellow;">
             This is an alert box.
         </div>
+        <label for="myProgress">Allocate JS Memory(MB):</label>
+        <input type="number" id="loadjsheap"></input>
+        <button onclick="allocateJSHeap()">Load JS Heap</button>
+        <input type="number" id="allocatedMem" name="size" value="" readonly/>
+        <progress id="myProgress" value="0" max="100"></progress>
+        <p> Note: A number takes 4Byte on Chrome and 8Byte on Firefox.</p>
+        <br/>
+        <label for="loadwasmmem">Allocate WASM memory(MB)</label>
+        <input type="number" id="loadwasmmem"></input>
+        <button onclick="allocateWASMMemory()">Load WASM Memory</button>
+        <input type="number" id="allocatedWasmMem" name="size" value="" readonly/>
+        <progress id="myWASMProgress" value="0" max="100"></progress>
         <div id="inputs_holder">
-            <label>Enter number of images to be loaded: </label>
+            <label>Enter number of images to be loaded (each image 2.7MB): </label>
             <input id="img_num" type="text"/>
-            <button onclick="draw()">Click</button>
+            <button onclick="draw()">Load Images</button>
         </div>
         <div id="img_holder">
         </div>
@@ -27,6 +39,11 @@
      </style>
 
     <script type="text/javascript">
+        function addToAlert(pText) {
+            var pElem = document.createElement("p");
+            pElem.innerText = pText;
+            document.getElementById("alert").appendChild(pElem);
+        }
         let total_size = 0;
         let total_images_resolved = 0;
         let onload = false;
@@ -81,16 +98,8 @@
         function draw(){
             if(onload === true)
             {
-                alert_div.style.display = "block";
-                alert_div.innerHTML = "Loading....Please Wait!";
-                setTimeout(function(){ alert_div.style.display = "none"; }, 1000);
                 return;
             }
-
-            //To show the images are loading
-            var png = document.createElement("img");
-            png.src = "../resources/loading.gif";
-            document.getElementById("inputs_holder").appendChild(png);
 
             let img_num = document.getElementById("img_num").value;
             if(img_num != null && img_num>0 && Number.isInteger(parseInt(img_num)))
@@ -104,9 +113,7 @@
                 }
                 
                 Promise.all(promises.map(p => p.catch(e => e))).then(function(results){
-                    alert_div.style.display = "block";
-                    alert_div.innerHTML = "Total images size is "+total_size/(1000*1000*1000) +" GB and total images resolved are "+total_images_resolved;
-                    document.getElementById("inputs_holder").removeChild(png);
+                    addToAlert("Total images size is "+total_size/(1024*1024*1024) +" GB and total images resolved are "+total_images_resolved);
                     onload = false;
                 })
                 .catch(err => {
@@ -116,10 +123,11 @@
             else{
                 alert_div.style.display = "block";
                 alert_div.innerHTML = "Please give valid image number";
-                setTimeout(function(){ alert_div.style.display = "none"; }, 1000);
-                document.getElementById("inputs_holder").removeChild(png);
             }
         }
 
     </script>
+    <script type="application/javascript" src="./jsMemoryTracker.js"></script>
+    <script type="application/javascript" src="./app.js"></script>
+    <script type="application/javascript" src="./wasmMemoryTracker.js"></script>
 </html>
