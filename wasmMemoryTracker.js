@@ -1,3 +1,17 @@
+var urlParams = new URLSearchParams(window.location.search);
+
+var noblock = false;
+
+if (urlParams.has("noblock")) {
+    noblock = true;
+}
+
+Module["onRuntimeInitialized"] = function () {
+    if (noblock) {
+        Module.shouldNotBlockMemory();
+    }
+}
+
 function allocateWASMMemory()
 {
     let wasmMemoryRequested = Number(document.getElementById("loadwasmmem").value);

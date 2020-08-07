@@ -75,12 +75,13 @@ bool tryAllocationToWasmFromJS(int size_in_mb){
     return true;
 }
 
-int main() {
-    // blockXMB(300);
+void shouldNotBlockMemory() {
+    doOnce = false;
 }
 
 EMSCRIPTEN_BINDINGS(FunctionBindings)
 {
+    function("shouldNotBlockMemory", &shouldNotBlockMemory);
     function("blockXMB", &blockXMB);
     function("freeXMB", &freeXMB);
     function("getWasmMemorySize", &getWasmMemorySize);
