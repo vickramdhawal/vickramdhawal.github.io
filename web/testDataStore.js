@@ -669,8 +669,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 78,
-  'maximum': 78 + 0,
+  'initial': 79,
+  'maximum': 79 + 0,
   'element': 'anyfunc'
 });
 
@@ -1289,11 +1289,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5253056,
+    STACK_BASE = 5253104,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 10176,
-    DYNAMIC_BASE = 5253056,
-    DYNAMICTOP_PTR = 10016;
+    STACK_MAX = 10224,
+    DYNAMIC_BASE = 5253104,
+    DYNAMICTOP_PTR = 10064;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1867,13 +1867,13 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  2032: function() {logToInfo("Trigger Trim Memory Event");},  
- 2073: function() {logToInfo("Memory Pressure Triggered");},  
- 2161: function() {logToInfo("Enough memory freed to continue execution");},  
- 2217: function() {logToInfo("Reserve Memory Captured Again");},  
- 2261: function() {logToInfo("Not enough memory to continue execution");},  
- 2315: function() {logMemoryStatus();},  
- 3016: function() {return 0}
+  2084: function() {logToInfo("Reserve Memory Captured Again");},  
+ 2129: function() {logToInfo("Trigger Trim Memory Event");},  
+ 2169: function() {logToInfo("Memory Pressure Triggered");},  
+ 2257: function() {logToInfo("Enough memory freed to continue execution");},  
+ 2313: function() {logToInfo("Not enough memory to continue execution");},  
+ 2367: function() {logMemoryStatus();},  
+ 3068: function() {return 0}
 };
 
 function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
@@ -1883,7 +1883,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
 
 
 
-// STATICTOP = STATIC_BASE + 9152;
+// STATICTOP = STATIC_BASE + 9200;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -2873,7 +2873,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 10016;
+      return 10064;
     }
 
   
@@ -3050,6 +3050,12 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
       return false;
     }
 
+  function _emscripten_set_timeout(cb, msecs, userData) {
+      return setTimeout(function() {
+        dynCall_vi(cb, userData);
+      }, msecs);
+    }
+
   
   function flush_NO_FILESYSTEM() {
       // flush anything remaining in the buffers during shutdown
@@ -3216,7 +3222,7 @@ function intArrayToString(array) {
 
 
 var asmGlobalArg = {};
-var asmLibraryArg = { "__assert_fail": ___assert_fail, "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "__handle_stack_overflow": ___handle_stack_overflow, "_embind_register_bool": __embind_register_bool, "_embind_register_emval": __embind_register_emval, "_embind_register_float": __embind_register_float, "_embind_register_function": __embind_register_function, "_embind_register_integer": __embind_register_integer, "_embind_register_memory_view": __embind_register_memory_view, "_embind_register_std_string": __embind_register_std_string, "_embind_register_std_wstring": __embind_register_std_wstring, "_embind_register_void": __embind_register_void, "abort": _abort, "clock_gettime": _clock_gettime, "emscripten_asm_const_iii": _emscripten_asm_const_iii, "emscripten_get_heap_size": _emscripten_get_heap_size, "emscripten_get_sbrk_ptr": _emscripten_get_sbrk_ptr, "emscripten_idb_async_store": _emscripten_idb_async_store, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_resize_heap": _emscripten_resize_heap, "fd_write": _fd_write, "memory": wasmMemory, "setTempRet0": _setTempRet0, "table": wasmTable };
+var asmLibraryArg = { "__assert_fail": ___assert_fail, "__cxa_allocate_exception": ___cxa_allocate_exception, "__cxa_atexit": ___cxa_atexit, "__cxa_throw": ___cxa_throw, "__handle_stack_overflow": ___handle_stack_overflow, "_embind_register_bool": __embind_register_bool, "_embind_register_emval": __embind_register_emval, "_embind_register_float": __embind_register_float, "_embind_register_function": __embind_register_function, "_embind_register_integer": __embind_register_integer, "_embind_register_memory_view": __embind_register_memory_view, "_embind_register_std_string": __embind_register_std_string, "_embind_register_std_wstring": __embind_register_std_wstring, "_embind_register_void": __embind_register_void, "abort": _abort, "clock_gettime": _clock_gettime, "emscripten_asm_const_iii": _emscripten_asm_const_iii, "emscripten_get_heap_size": _emscripten_get_heap_size, "emscripten_get_sbrk_ptr": _emscripten_get_sbrk_ptr, "emscripten_idb_async_store": _emscripten_idb_async_store, "emscripten_memcpy_big": _emscripten_memcpy_big, "emscripten_resize_heap": _emscripten_resize_heap, "emscripten_set_timeout": _emscripten_set_timeout, "fd_write": _fd_write, "memory": wasmMemory, "setTempRet0": _setTempRet0, "table": wasmTable };
 var asm = createWasm();
 /** @type {function(...*):?} */
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
