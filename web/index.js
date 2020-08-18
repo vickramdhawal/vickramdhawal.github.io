@@ -1,6 +1,7 @@
 var MB = 1024 * 1024;
 
 var logToInfo = function(message) {
+    console.log(message);
     var p = document.createElement("p");
     p.innerText = message;
     document.getElementById("info").appendChild(p);
@@ -19,6 +20,7 @@ var logBitmapCacheStatus = function () {
 }
 
 var interval = -1;
+var tryThrice = 3;
 
 function loadImages() {
     var imageCount = Number(document.getElementById("imageLoader").value);
@@ -34,11 +36,22 @@ function loadImages() {
         }
         logMemoryStatus();
         logBitmapCacheStatus();
+        if (Module.reservedMemory() == 0 && tryThrice > 0) {
+            tryThrice = tryThrice - 1;
+            logToInfo("WILL ATTEMPT AUTO RESERVE MEMORY");
+            try {
+                Module.autoReserveMemory();
+            } catch {
+                logToInfo("AUTO RESERVE MEMORY THROW");
+                Module.resetFreeReserveMemoryFlag();
+            }
+            logToInfo("AUTO RESERVE MEMORY " + Module.reservedMemory());
+        }
         var res = false;
         try {
             res = Module.allocateImage();
         } catch {
-
+            console.log("ALLOCATE IMAGE THREW");
         }
         var allocStatus;
         if (res) {
